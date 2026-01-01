@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - نظام المصنع</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #4338ca;
+        }
+        .error {
+            color: #dc2626;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h1 {
+            color: #4f46e5;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🏭 نظام إدارة المصنع</h1>
+            <p>الدخول للنظام الداخلي</p>
+        </div>
+        
+        <h2>تسجيل الدخول</h2>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">اسم المستخدم</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    placeholder="أدخل اسم المستخدم" 
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="أدخل كلمة المرور" 
+                    required
+                >
+            </div>
+            
+            <button type="submit">دخول إلى النظام</button>
+            
+            <div id="errorMessage" class="error">
+                ❌ اسم المستخدم أو كلمة المرور غير صحيحة
+            </div>
+        </form>
+        
+        <div style="margin-top: 20px; text-align: center; color: #666;">
+            <p>المستخدمون المسموحون فقط:</p>
+            <p><strong>admin</strong> - <strong>user1</strong> - <strong>user2</strong></p>
+        </div>
+    </div>
+
+    <script>
+        // ⬇⬇⬇ ابدأ النسخ من هنا ⬇⬇⬇
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('errorMessage');
+            
+            // إخفاء رسالة الخطأ
+            errorElement.style.display = 'none';
+            
+            // المستخدمون المسموحون (مؤقت - سنربطه بـ API لاحقاً)
+            const allowedUsers = {
+                'admin': { 
+                    password: 'Admin@123', // سيتم تغيير هذا لاحقاً
+                    name: 'المدير العام',
+                    role: 'admin',
+                    permissions: ['all']
+                },
+                'user1': { 
+                    password: 'User1@123',
+                    name: 'محمد أحمد',
+                    role: 'user',
+                    permissions: ['view', 'add']
+                },
+                'user2': { 
+                    password: 'User2@123',
+                    name: 'علي محمود',
+                    role: 'user',
+                    permissions: ['view']
+                }
+            };
+            
+            // التحقق من بيانات الدخول
+            const user = allowedUsers[username];
+            
+            if (user && user.password === password) {
+                // حفظ بيانات الجلسة
+                localStorage.setItem('factory_token', btoa(username + ':' + Date.now()));
+                localStorage.setItem('factory_user', JSON.stringify({
+                    username: username,
+                    name: user.name,
+                    role: user.role,
+                    permissions: user.permissions,
+                    loginTime: new Date().toISOString()
+                }));
+                
+                // تسجيل محاولة الدخول الناجحة
+                console.log('Login successful for:', username);
+                
+                // توجيه للصفحة الرئيسية
+                window.location.href = 'index.html';
+            } else {
+                // عرض رسالة الخطأ
+                errorElement.style.display = 'block';
+                
+                // تسجيل محاولة الدخول الفاشلة
+                console.warn('Failed login attempt for:', username);
+                
+                // اهتزاز الحقول
+                document.getElementById('username').style.animation = 'shake 0.5s';
+                document.getElementById('password').style.animation = 'shake 0.5s';
+                
+                setTimeout(() => {
+                    document.getElementById('username').style.animation = '';
+                    document.getElementById('password').style.animation = '';
+                }, 500);
+            }
+        });
+        
+        // إضافة تأثير الاهتزاز
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // إذا كان مستخدم مسجل بالفعل، توجيه للرئيسية
+        window.addEventListener('load', function() {
+            if (localStorage.getItem('factory_token')) {
+                window.location.href = 'index.html';
+            }
+        });
+        // ⬆⬆⬆ انتهى النسخ هنا ⬆⬆⬆
+    </script>
+</body>
+</html>

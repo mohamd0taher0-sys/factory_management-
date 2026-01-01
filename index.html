@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة المصنع</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="نظام متكامل لإدارة مصنع الملابس">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="إدارة المصنع">
+  
+  <!-- PWA Links -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png">
+  <link rel="apple-touch-icon" href="/icon-192x192.png">
+  
+  <!-- الكود العادي... -->
+</head>
+<body>
+  <!-- المحتوى -->
+  <body>
+  <!-- ✅ اضافة جديدة: تحقق من تسجيل الدخول -->
+  <script>
+    // ⬇⬇⬇ ابدأ النسخ من هنا ⬇⬇⬇
+    (function checkAuth() {
+      const token = localStorage.getItem('factory_token');
+      const currentPage = window.location.pathname;
+      
+      // إذا لم يكن مسجل دخول وليس في صفحة login
+      if (!token && !currentPage.includes('login.html')) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // إذا كان مسجلاً وفي صفحة login، اذهب للرئيسية
+      if (token && currentPage.includes('login.html')) {
+        window.location.href = 'index.html';
+      }
+    })();
+    // ⬆⬆⬆ انتهى النسخ هنا ⬆⬆⬆
+  </script>
+  
+  <!-- تسجيل Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('Service Worker registered:', reg))
+          .catch(err => console.error('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+    <!-- باقي المحتوى الأصلي -->
+
+  <!-- ✅ اضافة جديدة: نظام المصادقة -->
+  <script src="auth-system.js"></script>
+  
+  <!-- ✅ اضافة جديدة: زر تسجيل الخروج -->
+  <div style="position: fixed; top: 10px; left: 10px;">
+    <button onclick="logout()" style="background: red; color: white; padding: 8px;">
+      تسجيل الخروج
+    </button>
+  </div>
+  
+  <!-- ✅ اضافة جديدة: عرض اسم المستخدم -->
+  <script>
+    // ⬇⬇⬇ ابدأ النسخ من هنا ⬇⬇⬇
+    function logout() {
+      localStorage.removeItem('factory_token');
+      localStorage.removeItem('factory_user');
+      window.location.href = 'login.html';
+    }
+    
+    // عرض اسم المستخدم بعد تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', function() {
+      const userData = localStorage.getItem('factory_user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        const userDisplay = document.createElement('div');
+        userDisplay.innerHTML = `<h3>مرحباً ${user.name} (${user.role})</h3>`;
+        document.body.prepend(userDisplay);
+      }
+    });
+    // ⬆⬆⬆ انتهى النسخ هنا ⬆⬆⬆
+  </script>
+</body>
+</body>
+</html>
